@@ -20,7 +20,7 @@ class ActivityRequestsController extends Controller
         $title = 'Activity Request';
         // $activity_requests = ActivityRequest::all();
         // $facility_schedules = FacilitySchedule::all();
-        $facilities = Facility:: all();
+        // $facilities = Facility:: all();
         
         $activity_requests = DB::table('activity_requests')
         ->join('facility_schedules', 'facility_schedules.activity_request_id', 'activity_requests.id')
@@ -135,6 +135,7 @@ class ActivityRequestsController extends Controller
         $activity_request = ActivityRequest::find($id);
         $activity_request->is_deleted = 'true';
         $activity_request->save();
+
         return redirect('/activityrequests')->with('success', 'Activity Request Removed');
     }
 

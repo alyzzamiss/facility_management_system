@@ -109,6 +109,9 @@ class VehicleRequestsController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $vehicle_request = VehicleRequest::find($id);
+        $vehicle_request->is_deleted = 'true';
+        $vehicle_request->save();
+        return redirect('/vehiclerequests')->with('success', 'Vehicle Request Removed');
     }
 }

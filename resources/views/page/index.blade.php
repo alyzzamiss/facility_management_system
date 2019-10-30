@@ -16,7 +16,7 @@
                             </a>
                         </div>                                                         
                         <div class="col-lg-2">
-                            <a href="/facilityschedule">
+                            <a href="/facilityschedules">
                                 <button class="btn btn-outline-danger"><i class="fa fa-building"></i><br>Facility Request</button>
                             </a>
                         </div>

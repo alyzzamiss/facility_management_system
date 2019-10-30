@@ -18,15 +18,14 @@
 
 Route::get('/', 'PagesController@index');
 
-Route::resource('facilities', 'FacilitiesController');
-Route::get('/facilities', 'FacilitiesController@index');
-Route::get('/createfacility', 'FacilitiesController@create');
-
 Route::resource('activityrequests', 'ActivityRequestsController');
 Route::get('/activityrequest', 'ActivityRequestsController@index');
 Route::get('/createrequest', 'ActivityRequestsController@create');
 Route::get('/approverequest', 'ActivityRequestsController@approve');
 Route::get('/showrequest', 'ActivityRequestsController@show');
+
+Route::resource('facilityschedules', 'FacilitySchedulesController');
+Route::get('/facilityschedules', 'FacilitySchedulesController@index');
 
 Route::resource('vehiclerequests', 'VehicleRequestsController');
 Route::get('/vehiclerequest', 'VehicleRequestsController@index');
