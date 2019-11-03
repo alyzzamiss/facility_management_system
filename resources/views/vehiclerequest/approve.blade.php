@@ -5,8 +5,6 @@
 <div class="container mt-5 mb-5">
     <div class="row mr-0 ml-0">
         <a href="javascript:history.go(-1)" class="mr-auto"><button class="btn btn-secondary btn-sm"><i class="fa fa-chevron-left"></i> Back</button></a>
-        <a href="/create_vehiclerequest"><button class="btn btn-success btn-sm mr-1"><i class="fa fa-plus"></i> Create Vehicle Request</button></a>
-        <a href="/approve_vehiclerequests"><button class="btn btn-primary btn-sm"><i class="fa fa-check"></i> Approve Request</button></a>
     </div>
     <br>
     <div class="card">
@@ -28,7 +26,7 @@
             <tbody>
                 @if(count($vehicle_requests) > 0)
                     @foreach ($vehicle_requests as $vehicle_request)
-                        <tr align="center">
+                        <tr align="center">  
                             <td>{{$vehicle_request->id}}</td>
                             <td>{{$vehicle_request->requester_name}}</td>
                             <td>{{$vehicle_request->requester_contactno}}</td>
@@ -44,30 +42,31 @@
                                     <i class="fa fa-check-circle icon-success" ></i>
                                 @else
                                     <i class="fa fa-times-circle icon-danger"></i>
-                                @endif</td>
+                                @endif
+                            </td>
                             <td>
-                                <div class="btn-group" role="group">
-                                    {{-- <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#myModal1"><i class="fa fa-eye"></i></button> --}}
-                                    @if($vehicle_request->request_status == 'pending')
-                                        <a href="/vehiclerequest/{{$vehicle_request->id}}/edit">
-                                            <button type="button" class="btn btn-warning btn-sm" style="float:right"><i class="fa fa-edit"></i></button>
-                                        </a>
-                                        {!!Form::open(['action' => ['VehicleRequestsController@destroy', $vehicle_request->id], 'method' => 'POST' ])!!}
-                                            {{Form::hidden('_method', 'DELETE')}}
-                                            {{ Form::button('<i class="fa fa-trash"></i>', ['type' => 'submit', 'class' => 'btn btn-danger btn-sm'] )  }}
+                                @if($vehicle_request->request_status == 'pending')
+                                    <div class="btn-group" role="group">
+                                        {!!Form::open(['action' => ['VehicleRequestsController@approve_update', $vehicle_request->id], 'method' => 'POST' ])!!}
+                                            {{Form::hidden('_method', 'PUT')}}
+                                            {{ Form::button('<i class="fa fa-check"></i>', ['type' => 'submit', 'class' => 'btn btn-success btn-sm'] )  }}
                                         {!!Form::close()!!}
-                                    @elseif($vehicle_request->request_status == 'approved')
-                                        <a href="/"><button class="btn btn-dark btn-sm mr-1"><i class="fa fa-print"></i></button></a>
-                                    @else    
-                                        <p><small>Remarks: {{$vehicle_request->request_remarks}}</small></p>
-                                    @endif
-                                </div>   
+                                        {!!Form::open(['action' => ['VehicleRequestsController@decline_update', $vehicle_request->id], 'method' => 'POST' ])!!}
+                                            {{Form::hidden('_method', 'PUT')}}
+                                            {{ Form::button('<i class="fa fa-times"></i>', ['type' => 'submit', 'class' => 'btn btn-danger btn-sm'] )  }}
+                                        {!!Form::close()!!}
+                                    </div>
+                                @elseif($vehicle_request->request_status == 'approved')
+                                    <a href="/"><button class="btn btn-dark btn-sm mr-1"><i class="fa fa-print"></i></button></a>
+                                @else    
+                                    <p><small>Remarks: {{$vehicle_request->request_remarks}}</small></p>
+                                @endif
                             </td>
                         </tr>    
-                    @endforeach
-                @else
-                    <td colspan=6><center><p>No activity requests found!</p></center></td>     
-                @endif
+                        @endforeach
+                    @else
+                        <td colspan=6><center><p>No activity requests found!</p></center></td>     
+                    @endif
             </tbody>
         </table>
     </div>

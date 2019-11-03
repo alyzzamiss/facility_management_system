@@ -43,3 +43,16 @@
 
 /* Show the dropdown menu (use JS to add this class to the .dropdown-content container when the user clicks on the dropdown button) */
 .show {display:block;}
+
+/*Status icon colors*/
+.icon-pending{
+  color:#FFC107;
+}
+
+.icon-success{
+  color:#28A745;
+}
+
+.icon-danger{
+  color:#DC3545;
+}

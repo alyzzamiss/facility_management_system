@@ -23,8 +23,9 @@ class FacilitySchedulesController extends Controller
         ->join('facilities', 'facilities.id', 'facility_schedules.facility_id')
         ->select('facility_schedules.id', 'activity_requests.activity_name', 'activity_requests.date_from', 'activity_requests.date_to', 
                 'activity_requests.activity_category', 'activity_requests.request_status', 'facilities.facility_name',
-                'facility_schedules.schedule_status')
+                'facility_schedules.schedule_status', 'facility_schedules.schedule_remarks')
         ->where('activity_requests.is_deleted', 'false')
+        ->orderby('facility_schedules.schedule_status', 'desc')
         ->get();
 
         return view('facilityschedule.index')->with('title', $title)
@@ -95,5 +96,37 @@ class FacilitySchedulesController extends Controller
     public function destroy($id)
     {
         
+    }
+
+    public function approve_index()
+    {
+        $title = 'Facility Schedule Requests';
+        $facility_schedules = DB::table('facility_schedules')
+        ->join('activity_requests', 'activity_requests.id', 'facility_schedules.activity_request_id')
+        ->join('facilities', 'facilities.id', 'facility_schedules.facility_id')
+        ->select('facility_schedules.id', 'activity_requests.activity_name', 'activity_requests.date_from', 'activity_requests.date_to', 
+                'activity_requests.activity_category', 'activity_requests.request_status', 'facilities.facility_name',
+                'facility_schedules.schedule_status')
+        ->where('activity_requests.is_deleted', 'false')
+        ->get();
+
+        return view('facilityschedule.approve')->with('title', $title)
+                                            ->with('facility_schedules', $facility_schedules);
+    }
+    
+    public function approve_update($id)
+    {
+        $facility_schedules = FacilitySchedule::find($id);
+        $facility_schedules->schedule_status = 'approved';
+        $facility_schedules->save();
+        return redirect('/facilityschedules')->with('success', 'Facility Schedule Approved');
+    }
+
+    public function decline_update($id)
+    {
+        $facility_schedules = FacilitySchedule::find($id);
+        $facility_schedules->schedule_status = 'declined';
+        $facility_schedules->save();
+        return redirect('/facilityschedules')->with('success', 'Facility Schedule Declined');
     }
 }

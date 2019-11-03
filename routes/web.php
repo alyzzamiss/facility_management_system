@@ -18,22 +18,42 @@
 
 Route::get('/', 'PagesController@index');
 
-Route::resource('activityrequests', 'ActivityRequestsController');
-Route::get('/activityrequest', 'ActivityRequestsController@index');
+//Resource routes
+Route::resource('/activityrequest', 'ActivityRequestsController');
+Route::resource('/facilities', 'FacilitiesController');
+Route::resource('/facilityschedule', 'FacilitySchedulesController');
+Route::resource('/vehicle', 'VehiclesController');
+Route::resource('/vehiclerequest', 'VehicleRequestsController');
+
+// activity request routes
+Route::get('/activityrequests', 'ActivityRequestsController@index');
 Route::get('/createrequest', 'ActivityRequestsController@create');
-Route::get('/approverequest', 'ActivityRequestsController@approve');
+Route::get('/approverequests', 'ActivityRequestsController@approve_index');
 Route::get('/showrequest', 'ActivityRequestsController@show');
+Route::any('/activityrequests/{activityrequest}/approve_update', 'ActivityRequestsController@approve_update');
+Route::any('/activityrequests/{activityrequest}/decline_update', 'ActivityRequestsController@decline_update');
 
-Route::resource('facilityschedules', 'FacilitySchedulesController');
+// facilities controller
+Route::get('/facilities_index', 'FacilitiesController@index');
+
+// facility schedules controller
 Route::get('/facilityschedules', 'FacilitySchedulesController@index');
+Route::any('/facilityschedules/{facilityschedule}/approve_update', 'FacilitySchedulesController@approve_update');
+Route::any('/facilityschedules/{facilityschedule}/decline_update', 'FacilitySchedulesController@decline_update');
 
-Route::resource('vehiclerequests', 'VehicleRequestsController');
-Route::get('/vehiclerequest', 'VehicleRequestsController@index');
-Route::get('/create_vehiclerequest', 'VehicleRequestsController@create');
-
-Route::resource('vehicles', 'VehiclesController');
+//vehicles controller
 Route::get('/vehicles', 'VehiclesController@index');
 Route::get('/createvehicle', 'VehiclesController@create');
+
+//vehicle requests controller
+Route::get('/vehiclerequests', 'VehicleRequestsController@index');
+Route::get('/create_vehiclerequest', 'VehicleRequestsController@create');
+Route::get('/approve_vehiclerequests', 'VehicleRequestsController@approve_index');
+Route::any('/vehiclerequests/{vehiclerequest}/approve_update', 'VehicleRequestsController@approve_update');
+Route::any('/vehiclerequests/{vehiclerequest}/decline_update', 'VehicleRequestsController@decline_update');
+
+
+
 
 
 

@@ -19,14 +19,15 @@
     <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
 
     <!-- Styles -->
-    <link rel="icon" href="images/logo.png" type="image/x-icon">
+    <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/x-icon">
     <link rel="stylesheet" type="text/css" href="{{ asset('css/font-awesome.min.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ asset('css/bootstrap.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ asset('css/bootstrap-grid.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ asset('ccss/custom.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('css/custom.css') }}">
 </head>
 <body>
     @include('inc.navbar')
+    @include('inc.messages')
     @yield('content')
     <script type="text/javascript" src="js/custom.js"></script>
 </body>

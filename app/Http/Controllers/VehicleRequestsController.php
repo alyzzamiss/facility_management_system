@@ -21,8 +21,11 @@ class VehicleRequestsController extends Controller
         ->join('vehicles', 'vehicles.id', 'vehicle_requests.vehicle_id')
         ->select('vehicle_requests.id', 'vehicle_requests.requester_name', 'vehicle_requests.destination',
                 'vehicle_requests.date_from', 'vehicle_requests.date_to', 'vehicles.vehicle_name', 'vehicles.vehicle_driver',
-                'vehicles.vehicle_plateno', 'vehicle_requests.request_status')
+                'vehicles.vehicle_plateno', 'vehicle_requests.request_status', 'vehicle_requests.time_from', 
+                'vehicle_requests.time_to', 'vehicle_requests.requester_contactno', 'vehicle_requests.total_passengers', 
+                'vehicle_requests.request_purpose', 'vehicle_requests.request_remarks')
         ->where('vehicle_requests.is_deleted', 'false')
+        ->orderby('vehicle_requests.request_status', 'desc')
         ->get();
 
         return view('vehiclerequest.index')->with('title', $title)
@@ -86,7 +89,20 @@ class VehicleRequestsController extends Controller
      */
     public function edit($id)
     {
-        //
+        $vehicle_request =  DB::table('vehicle_requests')
+        ->join('vehicles', 'vehicles.id', 'vehicle_requests.vehicle_id')
+        ->select('vehicle_requests.id', 'vehicle_requests.requester_name', 'vehicle_requests.destination',
+                'vehicle_requests.date_from', 'vehicle_requests.date_to', 'vehicles.vehicle_name', 'vehicles.vehicle_driver',
+                'vehicles.vehicle_plateno', 'vehicle_requests.request_status', 'vehicle_requests.vehicle_id', 'vehicle_requests.time_from', 
+                'vehicle_requests.time_to', 'vehicle_requests.requester_contactno', 'vehicle_requests.total_passengers', 'vehicle_requests.request_purpose')
+        ->where('vehicle_requests.is_deleted', 'false')
+        ->where('vehicle_requests.id', $id)
+        ->first();
+
+        $vehicles = Vehicle::where('vehicle_status', 'good condition')->get();
+
+        return view('vehiclerequest.edit')->with('vehicle_request', $vehicle_request)
+                                        ->with('vehicles', $vehicles);
     }
 
     /**
@@ -98,7 +114,20 @@ class VehicleRequestsController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $vehicle_request = VehicleRequest::find($id);
+        $vehicle_request->requester_name = $request->input('requester_name');
+        $vehicle_request->requester_contactno = $request->input('requester_contactno');
+        $vehicle_request->vehicle_id = $request->input('vehicle_id');
+        $vehicle_request->total_passengers = $request->input('total_passengers');
+        $vehicle_request->destination = $request->input('destination');
+        $vehicle_request->request_purpose = $request->input('request_purpose');
+        $vehicle_request->date_from = $request->input('date_from');
+        $vehicle_request->date_to = $request->input('date_to');
+        $vehicle_request->time_from = $request->input('time_from');
+        $vehicle_request->time_to = $request->input('time_to');
+        $vehicle_request->save();
+
+        return redirect('/vehiclerequests')->with('success', 'Vehicle request updated successfully!');
     }
 
     /**
@@ -113,5 +142,53 @@ class VehicleRequestsController extends Controller
         $vehicle_request->is_deleted = 'true';
         $vehicle_request->save();
         return redirect('/vehiclerequests')->with('success', 'Vehicle Request Removed');
+    }
+
+    public function approve_index()
+    {
+        $title = 'Vehicle Requests';
+        $vehicle_requests =  DB::table('vehicle_requests')
+        ->join('vehicles', 'vehicles.id', 'vehicle_requests.vehicle_id')
+        ->select('vehicle_requests.id', 'vehicle_requests.requester_name', 'vehicle_requests.destination',
+                'vehicle_requests.date_from', 'vehicle_requests.date_to', 'vehicles.vehicle_name', 'vehicles.vehicle_driver',
+                'vehicles.vehicle_plateno', 'vehicle_requests.request_status', 'vehicle_requests.time_from', 
+                'vehicle_requests.time_to', 'vehicle_requests.requester_contactno', 'vehicle_requests.total_passengers', 
+                'vehicle_requests.request_purpose', 'vehicle_requests.request_remarks')
+        ->where('vehicle_requests.is_deleted', 'false')
+        ->orderby('vehicle_requests.request_status', 'desc')
+        ->get();
+
+        return view('vehiclerequest.approve')->with('title', $title)
+                                            ->with('vehicle_requests', $vehicle_requests);
+    }
+
+    public function approve($id){
+        $title = 'Approve Vehicle Requests';
+        $vehicle_requests =  DB::table('vehicle_requests')
+        ->join('vehicles', 'vehicles.id', 'vehicle_requests.vehicle_id')
+        ->select('vehicle_requests.id', 'vehicle_requests.requester_name', 'vehicle_requests.destination',
+                'vehicle_requests.date_from', 'vehicle_requests.date_to', 'vehicles.vehicle_name', 'vehicles.vehicle_driver',
+                'vehicles.vehicle_plateno', 'vehicle_requests.request_status', 'vehicle_requests.request_remarks')
+        ->where('vehicle_requests.is_deleted', 'false')
+        ->get();
+
+        return view('vehiclerequest.approve')->with('title', $title)
+                                            ->with('vehicle_requests', $vehicle_requests);
+    }
+
+    public function approve_update($id)
+    {
+        $vehicle_request = VehicleRequest::find($id);
+        $vehicle_request->request_status = 'approved';
+        $vehicle_request->save();
+        return redirect('/vehiclerequests')->with('success', 'Vehicle Request Approved');
+    }
+
+    public function decline_update($id)
+    {
+        $vehicle_request = VehicleRequest::find($id);
+        $vehicle_request->request_status = 'declined';
+        $vehicle_request->save();
+        return redirect('/vehiclerequests')->with('success', 'Vehicle Request Declined');
     }
 }

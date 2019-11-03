@@ -29,16 +29,49 @@
                             @foreach ($activity_requests as $activity_request)
                                 <tr align="center">  
                                     <td>{{$activity_request->id}}</td>
-                                    <td>{{$activity_request->activity_name}}</td>
-                                    <td>{{$activity_request->date_from}} - {{$activity_request->date_to}}</td>
+                                    <td><a href="/activityrequest/{{$activity_request->id}}">{{$activity_request->activity_name}}</a></td>
+                                    <td><small>{{$activity_request->date_from}} - {{$activity_request->date_to}}
+                                            <br>{{$activity_request->time_from}} - {{$activity_request->time_to}}
+                                    </small></td>
                                     <td>{{$activity_request->facility_name}} ({{$activity_request->schedule_status}})</td>
                                     <td>{{$activity_request->activity_category}}</td>
-                                    <td>{{$activity_request->request_status}}</td>
-                                    <td>
-                                        <a href="/showrequest"><button class="btn btn-primary btn-sm"><i class="fa fa-eye"></i></button></a>
-                                        <a href="edit.php"><button class="btn btn-warning btn-sm"><i class="fa fa-edit"></i></button></a>
-                                        <a href="delete.php"><button class="btn btn-danger btn-sm"><i class="fa fa-trash"></i></button></a>    
+                                    <td>@if($activity_request->request_status == 'pending')
+                                            <i class="fa fa-exclamation-circle icon-pending"></i>
+                                        @elseif($activity_request->request_status == 'approved')
+                                            <i class="fa fa-check-circle icon-success" ></i>
+                                        @else
+                                            <i class="fa fa-times-circle icon-danger"></i>
+                                        @endif
                                     </td>
+                                    <td><div class="btn-group" role="group">
+                                        @if($activity_request->request_status == 'pending')
+                                            <div class="btn-group" role="group">
+                                                @if($activity_request->schedule_status == 'approved')
+                                                    {!!Form::open(['action' => ['ActivityRequestsController@approve_update', $activity_request->id], 'method' => 'POST' ])!!}
+                                                        {{Form::hidden('_method', 'PUT')}}
+                                                        {{ Form::button('<i class="fa fa-check"></i>', ['type' => 'submit', 'class' => 'btn btn-success btn-sm'] )  }}
+                                                    {!!Form::close()!!}
+                                                    {!!Form::open(['action' => ['ActivityRequestsController@decline_update', $activity_request->id], 'method' => 'POST' ])!!}
+                                                        {{Form::hidden('_method', 'PUT')}}
+                                                        {{ Form::button('<i class="fa fa-times"></i>', ['type' => 'submit', 'class' => 'btn btn-danger btn-sm'] )  }}
+                                                    {!!Form::close()!!}
+                                                @else
+                                                    {!!Form::open(['action' => ['ActivityRequestsController@approve_update', $activity_request->id], 'method' => 'POST' ])!!}
+                                                        {{Form::hidden('_method', 'PUT')}}
+                                                        {{ Form::button('<i class="fa fa-check"></i>', ['type' => 'submit', 'class' => 'btn btn-success btn-sm', 'disabled'] )  }}
+                                                    {!!Form::close()!!}
+                                                    {!!Form::open(['action' => ['ActivityRequestsController@decline_update', $activity_request->id], 'method' => 'POST' ])!!}
+                                                        {{Form::hidden('_method', 'PUT')}}
+                                                        {{ Form::button('<i class="fa fa-times"></i>', ['type' => 'submit', 'class' => 'btn btn-danger btn-sm', 'disabled'] )  }}
+                                                    {!!Form::close()!!}
+                                                @endif
+                                            </div>
+                                        @elseif($activity_request->request_status == 'approved')
+                                            <a href="/"><button class="btn btn-dark btn-sm mr-1"><i class="fa fa-print"></i></button></a>
+                                        @else 
+                                            <p><small>Remarks: {{$activity_request->request_remarks}}</small></p>
+                                        @endif
+                                    </div></td>
                                 </tr>    
                                 @endforeach
                             @else

@@ -18,6 +18,7 @@ class CreateFacilitySchedulesTable extends Migration
             $table->integer('activity_request_id')->unsigned();
             $table->integer('facility_id')->unsigned();
             $table->string('schedule_status')->default('pending');
+            $table->string('schedule_remarks');
             $table->timestamps();
         });
         

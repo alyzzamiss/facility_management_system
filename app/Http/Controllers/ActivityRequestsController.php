@@ -27,9 +27,10 @@ class ActivityRequestsController extends Controller
         ->join('facilities', 'facilities.id', 'facility_schedules.facility_id')
         ->select('activity_requests.id', 'activity_requests.activity_name', 'activity_requests.date_from', 'activity_requests.date_to', 
                 'activity_requests.activity_category', 'activity_requests.request_status', 'facilities.facility_name',
-                'facility_schedules.schedule_status')
+                'facility_schedules.schedule_status', 'activity_requests.time_from', 'activity_requests.time_to')
         ->where('activity_requests.is_deleted', 'false')
         ->where('facilities.facility_group', 'Place/Amenity')
+        ->orderby('activity_requests.request_status', 'desc')
         ->get();
 
         return view('activityrequest.index')->with('title', $title)
@@ -71,7 +72,7 @@ class ActivityRequestsController extends Controller
         $activity_requests->date_to = $request->input('date_to');
         $activity_requests->time_from = $request->input('time_from');
         $activity_requests->time_to = $request->input('time_to');
-        $activity_requests->services_requested= $request->input('services_requested1');
+        // $activity_requests->services_requested= $request->input('services_requested1');
         $activity_requests->save();
 
         $last_insert_id = $activity_requests->id;
@@ -86,7 +87,7 @@ class ActivityRequestsController extends Controller
         $equipment_schedules->facility_id = $request->input('equipment_id');
         $equipment_schedules->save();
 
-        return redirect('/activityrequests')->with('success', 'Activity Request Created');    
+        return redirect('/activityrequests')->with('success', 'Activity Request and Facility Schedule Created');    
     }
 
     /**
@@ -97,8 +98,19 @@ class ActivityRequestsController extends Controller
      */
     public function show($id)
     {
-        $activity_request = Activity_Request::find($id);
+        $activity_request = DB::table('activity_requests')
+        ->join('facility_schedules', 'facility_schedules.activity_request_id', 'activity_requests.id')
+        ->join('facilities', 'facilities.id', 'facility_schedules.facility_id')
+        ->select('activity_requests.id', 'activity_requests.activity_name', 'activity_requests.date_from', 'activity_requests.date_to', 
+                'activity_requests.activity_category', 'activity_requests.request_status', 'facilities.facility_name',
+                'facility_schedules.schedule_status', 'activity_requests.created_at', 'activity_requests.updated_at', 'activity_requests.requester_name', 
+                'activity_requests.requester_contactno', 'activity_requests.activity_purpose', 'activity_requests.request_remarks', 'activity_requests.services_requested', 
+                'activity_requests.time_from', 'activity_requests.time_to', 'activity_requests.services_requested', 'activity_requests.request_remarks')
+        ->where('activity_requests.id', $id)
+        ->first();
+
         return view('activityrequest.show')->with('activity_request', $activity_request);
+        
     }
 
     /**
@@ -109,7 +121,24 @@ class ActivityRequestsController extends Controller
      */
     public function edit($id)
     {
-        //
+        $activity_request = DB::table('activity_requests')
+        ->join('facility_schedules', 'facility_schedules.activity_request_id', 'activity_requests.id')
+        ->join('facilities', 'facilities.id', 'facility_schedules.facility_id')
+        ->select('activity_requests.id', 'activity_requests.activity_name', 'activity_requests.date_from', 'activity_requests.date_to', 
+                'activity_requests.activity_category', 'activity_requests.request_status', 'facilities.facility_name',
+                'facility_schedules.schedule_status', 'activity_requests.created_at', 'activity_requests.updated_at', 'activity_requests.requester_name', 
+                'activity_requests.requester_contactno', 'activity_requests.activity_purpose', 'activity_requests.request_remarks', 'activity_requests.services_requested', 
+                'activity_requests.time_from', 'activity_requests.time_to', 'activity_requests.services_requested', 'activity_requests.request_remarks', 'facility_schedules.facility_id')
+        ->where('activity_requests.id', $id)
+        ->first();
+
+        $facilities = Facility::where('facility_group', 'Place/Amenity')->get();
+        $equipments = Facility::where('facility_group', 'Equipment')->get();
+
+        return view('activityrequest.edit')->with('activity_request', $activity_request)
+                                        ->with('facilities', $facilities)
+                                        ->with('equipments', $equipments)
+                                        ->with('success', 'Activity request successfully updated!');
     }
 
     /**
@@ -121,7 +150,36 @@ class ActivityRequestsController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        //update activty request
+        $activity_request = ActivityRequest::find($id);
+        $activity_request->requester_name = $request->input('requester_name');
+        $activity_request->requester_contactno = $request->input('requester_contactno');
+        $activity_request->activity_name = $request->input('activity_name');
+        $activity_request->activity_category = $request->input('activity_category');
+        $activity_request->activity_purpose = $request->input('activity_purpose');
+        $activity_request->date_from = $request->input('date_from');
+        $activity_request->date_to = $request->input('date_to');
+        $activity_request->time_from = $request->input('time_from');
+        $activity_request->time_to = $request->input('time_to');
+        // $activity_requests->services_requested= $request->input('services_requested1');
+        $activity_request->save();
+
+        // $last_updated_id = $activity_requests->id;
+        //redirect
+        return redirect('/activityrequests')->with('success', 'Activity request updated successfully');
+        // return redirect()->action('ActivityRequestsController@show', ['id' => $id]);
+
+        
+        
+        // $faclity_schedule = DB::table('faclity_schedules')->where('faclity_schedules.activity_request_id', $last_updated_id)
+        //                                                 ->;
+        // $faclity_schedule->facility_id = $request->input('venue_id');
+        // $faclity_schedule->save();
+
+        // $faclity_schedule = DB::table('faclity_schedules')->where('faclity_schedules.activity_request_id', $last_updated_id);
+        // $faclity_schedule->facility_id = $request->input('equipment_id');
+        // $faclity_schedule->save();
+
     }
 
     /**
@@ -139,9 +197,9 @@ class ActivityRequestsController extends Controller
         return redirect('/activityrequests')->with('success', 'Activity Request Removed');
     }
 
-    public function approve()
+    public function approve_index()
     {
-        $title = 'Facility Schedule Request';
+        $title = 'Activity Request';
         $facilities = Facility:: all();
         
         $activity_requests = DB::table('activity_requests')
@@ -149,9 +207,10 @@ class ActivityRequestsController extends Controller
         ->join('facilities', 'facilities.id', 'facility_schedules.facility_id')
         ->select('activity_requests.id', 'activity_requests.activity_name', 'activity_requests.date_from', 'activity_requests.date_to', 
                 'activity_requests.activity_category', 'activity_requests.request_status', 'facilities.facility_name',
-                'facility_schedules.schedule_status')
+                'facility_schedules.schedule_status', 'activity_requests.time_from', 'activity_requests.time_to', 'activity_requests.request_remarks')
         ->where('activity_requests.is_deleted', 'false')
         ->where('facilities.facility_group', 'Place/Amenity')
+        ->orderby('activity_requests.request_status', 'desc')
         ->get();
 
         return view('activityrequest.approve')->with('title', $title)
@@ -160,7 +219,18 @@ class ActivityRequestsController extends Controller
 
     public function approve_update($id)
     {
-        
+        $activity_request = ActivityRequest::find($id);
+        $activity_request->request_status = 'approved';
+        $activity_request->save();
+        return redirect('/activityrequests')->with('success', 'Activity Request Approved');
+    }
+
+    public function decline_update($id)
+    {
+        $activity_request = ActivityRequest::find($id);
+        $activity_request->request_status = 'declined';
+        $activity_request->save();
+        return redirect('/activityrequests')->with('success', 'Activity Request Declined');
     }
 
 }

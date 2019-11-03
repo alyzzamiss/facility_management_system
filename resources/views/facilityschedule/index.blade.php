@@ -5,8 +5,6 @@
 <div class="container mt-5 mb-5">
     <div class="row mr-0 ml-0">
         <a href="javascript:history.go(-1)" class="mr-auto"><button class="btn btn-secondary btn-sm"><i class="fa fa-chevron-left"></i> Back</button></a>
-        <a href="/createrequest"><button class="btn btn-success btn-sm mr-1"><i class="fa fa-plus"></i> Create Activity Request</button></a>
-        <a href="/approverequest"><button class="btn btn-primary btn-sm"><i class="fa fa-check"></i> Approve Request</button></a>
     </div>
     <br>
     <div class="card">
@@ -32,12 +30,30 @@
                                     <td>{{$facility_schedule->facility_name}}</td>
                                     <td>{{$facility_schedule->activity_name}}</td>
                                     <td>{{$facility_schedule->date_from}} - {{$facility_schedule->date_to}}</td>
-                                    <td>{{$facility_schedule->schedule_status}}</td>
+                                    <td>@if($facility_schedule->schedule_status == 'pending')
+                                            <i class="fa fa-exclamation-circle icon-pending"></i>
+                                        @elseif($facility_schedule->schedule_status == 'approved')
+                                            <i class="fa fa-check-circle icon-success" ></i>
+                                        @else
+                                            <i class="fa fa-times-circle icon-danger"></i>
+                                        @endif</td>
                                     <td>
-                                        <div class="btn-group" role="group">
-                                            <a href="/showrequest"><button class="btn btn-primary btn-sm"><i class="fa fa-eye"></i></button></a>
-                                            <a href="edit.php"><button class="btn btn-warning btn-sm"><i class="fa fa-edit"></i></button></a>
-                                        </div>    
+                                        @if($facility_schedule->schedule_status == 'pending')
+                                            <div class="btn-group" role="group">
+                                                {!!Form::open(['action' => ['FacilitySchedulesController@approve_update', $facility_schedule->id], 'method' => 'POST' ])!!}
+                                                    {{Form::hidden('_method', 'PUT')}}
+                                                    {{ Form::button('<i class="fa fa-check"></i>', ['type' => 'submit', 'class' => 'btn btn-success btn-sm'] )  }}
+                                                {!!Form::close()!!}
+                                                {!!Form::open(['action' => ['FacilitySchedulesController@decline_update', $facility_schedule->id], 'method' => 'POST' ])!!}
+                                                    {{Form::hidden('_method', 'PUT')}}
+                                                    {{ Form::button('<i class="fa fa-times"></i>', ['type' => 'submit', 'class' => 'btn btn-danger btn-sm'] )  }}
+                                                {!!Form::close()!!}
+                                            </div>
+                                        @elseif($facility_schedule->schedule_status == 'approved')
+                                            <a href="/"><button class="btn btn-dark btn-sm mr-1"><i class="fa fa-print"></i></button></a>
+                                        @else
+                                            <p><small>Remarks:{{$facility_schedule->schedule_remarks}}</small></p>
+                                        @endif  
                                     </td>
                                 </tr>    
                                 @endforeach
